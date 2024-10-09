@@ -1,5 +1,8 @@
 package ru.naumen.collection.task1;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Дано:
  * <pre>
@@ -22,8 +25,13 @@ package ru.naumen.collection.task1;
  * @author vpyzhyanov
  * @since 19.10.2023
  */
-public class Task1
-{
+public class Task1  {
+    /**
+     * HashMap, так как при правильном определении хэш-функции в классе Ticket
+     * получение элемента по ключу будет происходить за O(1)
+     */
+    private final Map<Ticket, Goods> items = new HashMap<>();
+
     public enum Goods {
         /**
          * нет товаров
@@ -38,7 +46,6 @@ public class Task1
          */
         FOOD_AND_DRINKS
     }
-
     /**
      * Получить товары по билету
      * <p>Сложность алгоритма O(1)</p>
@@ -47,7 +54,6 @@ public class Task1
      * <p>Достаточно их определить только для id, т.к. он уникален</p>
      */
     public Goods getGoods(Ticket ticket) {
-        // TODO реализовать
-        return null;
+        return items.get(ticket); // 0(1)
     }
 }

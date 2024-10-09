@@ -2,6 +2,7 @@ package ru.naumen.collection.task4;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +37,7 @@ import java.util.function.Supplier;
  */
 public class Task4 {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         ConcurrentCalculationManager<String> calculationManager = new ConcurrentCalculationManager<>();
         ExecutorService executorService = Executors.newFixedThreadPool(3);
         Instant startTimer = Instant.now();
