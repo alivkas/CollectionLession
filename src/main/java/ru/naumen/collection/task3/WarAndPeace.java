@@ -15,19 +15,23 @@ import java.util.*;
  */
 public class WarAndPeace
 {
-
     private static final Path WAR_AND_PEACE_FILE_PATH = Path.of("src/main/resources",
             "Лев_Толстой_Война_и_мир_Том_1,_2,_3,_4_(UTF-8).txt");
     /**
-     * По умолчанию HashMap использует метод hashCode() класса String,
+     * По умолчанию LinkedHashMap использует метод hashCode() класса String,
      * который хорошо распределяет хэш-значения для строк.
      * Поэтому вставка и чтение будет происходить за O(1).
+     * Так же, проведя анализ на количество элементов, было выяснено, что коллекция хранит внутри себя
+     * 53594 элементов. Для еще большей оптимизации, в конструкторе можно указать количество изначально
+     * хранящихся баккетов равных какой-нибудь степени двойки, это поможет создать заранее готовое
+     * количество баккетов для исключения коллизий и уменьшения затрат на память (так как при стандарном размере
+     * LinkedHashMap динамически расширяется).
+     * Я выбрал 2^16, что чуть больше изначального размера
      */
-    private static final Map<String, Integer> mapCount = new HashMap<>();
-
     public static void main(String[] args) {
+        Map<String, Integer> mapCount = new LinkedHashMap<>(65536);
         /**
-         * O(n), т.к. перебор O(n) * вставка у HashMap O(1).
+         * O(n), т.к. перебор O(n) * вставка у LinkedHashMap O(1).
          */
         new WordParser(WAR_AND_PEACE_FILE_PATH)
                 .forEachWord(word -> {
@@ -42,7 +46,7 @@ public class WarAndPeace
 
     /**
      * Копирование словаря в список происходит перебором => O(n)
-     * Встроенная сортировка имеет под капотом сортировку слиянием => во всех случаях O(nLog(n))
+     * Как указано в JavaDoc, Collection.sort имеет сложность O(nLog(n))
      * => весь алгоритм имеет сложность O(n + nLog(n))
      */
     public static List<Map.Entry<String, Integer>> mapSort(Map<String, Integer> map) {

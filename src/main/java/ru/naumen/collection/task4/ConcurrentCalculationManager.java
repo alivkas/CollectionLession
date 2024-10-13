@@ -2,6 +2,7 @@ package ru.naumen.collection.task4;
 
 import java.util.Queue;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
@@ -10,24 +11,28 @@ import java.util.function.Supplier;
 public class ConcurrentCalculationManager<T> {
     /**
      * Так как по условию необходимо выводить задачи в их порядке, выбор пал на очереди.
-     * Так как задача не подразумевает, что потоки будут пытаться взять элемент из
-     * пустой очереди или добавлять его в полную, то блокирующие очереди не понадобятся.
      * ConcurrentLinkedQueue работает на связных списках, поэтому вставка и удаление будет
      * работать со сложностью O(1).
      */
     private final Queue<Future<T>> blockingQueue = new ConcurrentLinkedQueue<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final AtomicInteger tasksAdded = new AtomicInteger(0);
 
     /**
      * Добавить задачу на параллельное вычисление
      */
-    public void addTask(Supplier<T> task) {
+    public void addTask(Supplier<T> task) throws InterruptedException {
         /**
          * Сложность определяется самой задачей, а так как в самой задаче мы просто получаем
          * один объект из функционального интерфейса Supplier, то сложность будет O(1).
          */
         Future<T> future = executorService.submit(() -> task.get());
         blockingQueue.add(future); // O(1)
+
+        if (tasksAdded.incrementAndGet() == 3) { // Для завершения работы executorService
+            executorService.shutdown();
+            executorService.awaitTermination(4, TimeUnit.SECONDS);
+        }
     }
 
     /**
