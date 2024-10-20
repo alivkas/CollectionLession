@@ -2,6 +2,7 @@ package ru.naumen.collection.task4;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,64 +37,64 @@ import java.util.function.Supplier;
  */
 public class Task4 {
 
-    public static void main(String[] args) throws InterruptedException {
-        ConcurrentCalculationManager<String> calculationManager = new ConcurrentCalculationManager<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
-        Instant startTimer = Instant.now();
+    public static void main(String[] args) {
+        try (ConcurrentCalculationManager<String> calculationManager = new ConcurrentCalculationManager<>()) {
+            ExecutorService executorService = Executors.newFixedThreadPool(3);
+            Instant startTimer = Instant.now();
 
-        // Задачи добавляются в отдельных потоках
-        executeTaskInSeparateThread(executorService, calculationManager, () -> {
-            try {
-                Thread.sleep(3000L);
-            }
-            catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("Завершена задача №1");
-            return "Задача №1";
-        });
-        Thread.sleep(100L);
-        executeTaskInSeparateThread(executorService, calculationManager, () -> {
-            try {
-                Thread.sleep(2000L);
-            }
-            catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("Завершена задача №2");
-            return "Задача №2";
-        });
-        Thread.sleep(100L);
-        executeTaskInSeparateThread(executorService, calculationManager, () -> {
-            try {
-                Thread.sleep(1000L);
-            }
-            catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("Завершена задача №3");
-            return "Задача №3";
-        });
+            // Задачи добавляются в отдельных потоках
+            executeTaskInSeparateThread(executorService, calculationManager, () -> {
+                try {
+                    Thread.sleep(3000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.println("Завершена задача №1");
+                return "Задача №1";
+            });
+            Thread.sleep(100L);
+            executeTaskInSeparateThread(executorService, calculationManager, () -> {
+                try {
+                    Thread.sleep(2000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.println("Завершена задача №2");
+                return "Задача №2";
+            });
+            Thread.sleep(100L);
+            executeTaskInSeparateThread(executorService, calculationManager, () -> {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.println("Завершена задача №3");
+                return "Задача №3";
+            });
 
-        // Получение результата происходит в текущем потоке
-        // Внимание! В этот момент результата ещё нет, поэтому нужно подождать.
-        System.out.println("Результат выполнения 1: " + calculationManager.getResult());
-        System.out.println("Результат выполнения 2: " + calculationManager.getResult());
-        System.out.println("Результат выполнения 3: " + calculationManager.getResult());
+            // Получение результата происходит в текущем потоке
+            // Внимание! В этот момент результата ещё нет, поэтому нужно подождать.
+            System.out.println("Результат выполнения 1: " + calculationManager.getResult());
+            System.out.println("Результат выполнения 2: " + calculationManager.getResult());
+            System.out.println("Результат выполнения 3: " + calculationManager.getResult());
 
-        executorService.shutdown();
-        executorService.awaitTermination(7, TimeUnit.SECONDS);
+            executorService.shutdown();
+            executorService.awaitTermination(7, TimeUnit.SECONDS);
 
-        Duration duration = Duration.between(startTimer, Instant.now());
-        System.err.println("Total time = " +
-                duration.getSeconds() + " seconds (" + duration.toMillis() + " millis)");
-        // Ожидаемый вывод должен быть в порядке:
-        //   Результат выполнения 1 : Задача №1
-        //   Результат выполнения 2 : Задача №2
-        //   Результат выполнения 3 : Задача №3
-        // При этом время выполнения должно быть 3 секунды!
-        if (duration.getSeconds() > 3) {
-            throw new AssertionError("Время выполнения не должно превышать 3 секунды");
+            Duration duration = Duration.between(startTimer, Instant.now());
+            System.err.println("Total time = " +
+                    duration.getSeconds() + " seconds (" + duration.toMillis() + " millis)");
+            // Ожидаемый вывод должен быть в порядке:
+            //   Результат выполнения 1 : Задача №1
+            //   Результат выполнения 2 : Задача №2
+            //   Результат выполнения 3 : Задача №3
+            // При этом время выполнения должно быть 3 секунды!
+            if (duration.getSeconds() > 3) {
+                throw new AssertionError("Время выполнения не должно превышать 3 секунды");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
